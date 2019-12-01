@@ -1,9 +1,8 @@
 import { TennisGame } from './TennisGame';
 
-
 export class TennisGame1 implements TennisGame {
-  private m_score1: number = 0;
-  private m_score2: number = 0;
+  private player1Score: number = 0;
+  private player2Score: number = 0;
   private player1Name: string;
   private player2Name: string;
 
@@ -13,43 +12,70 @@ export class TennisGame1 implements TennisGame {
   }
 
   wonPoint(playerName: string): void {
-    if (playerName === 'player1')
-      this.m_score1 += 1;
-    else
-      this.m_score2 += 1;
+    playerName === this.player1Name ? this.player1Score++ : this.player2Score++;
+  }
+
+  private scoresEqual(score: number): string {
+    switch (score) {
+      case 0:
+        return 'Love-All';
+      case 1:
+        return 'Fifteen-All';
+      case 2:
+        return 'Thirty-All';
+      default:
+        return 'Deuce';
+    }
+  }
+
+  private isAdvantageScore(): boolean {
+    const scoreDifference: number = this.player1Score - this.player2Score;
+
+    return (
+      (this.player1Score >= 4 || this.player2Score >= 4) &&
+      (scoreDifference === 1 || scoreDifference === -1)
+    );
+  }
+
+  private getAdvantage(scoreDifference: number): string {
+    if (scoreDifference === 1) {
+      return 'Advantage player1';
+    }
+
+    if (scoreDifference === -1) {
+      return 'Advantage player2';
+    }
+  }
+
+  private isWin(scoreDifference): boolean {
+    return (
+      (this.player1Score >= 4 || this.player2Score >= 4) &&
+      (scoreDifference >= 2 || scoreDifference <= -2)
+    );
+  }
+
+  private win(scoreDifference): string {
+    return scoreDifference >= 2 ? 'Win for player1' : 'Win for player2';
   }
 
   getScore(): string {
     let score: string = '';
     let tempScore: number = 0;
-    if (this.m_score1 === this.m_score2) {
-      switch (this.m_score1) {
-        case 0:
-          score = 'Love-All';
-          break;
-        case 1:
-          score = 'Fifteen-All';
-          break;
-        case 2:
-          score = 'Thirty-All';
-          break;
-        default:
-          score = 'Deuce';
-          break;
+    const scoreDifference: number = this.player1Score - this.player2Score;
 
-      }
-    }
-    else if (this.m_score1 >= 4 || this.m_score2 >= 4) {
-      const minusResult: number = this.m_score1 - this.m_score2;
-      if (minusResult === 1) score = 'Advantage player1';
-      else if (minusResult === -1) score = 'Advantage player2';
-      else if (minusResult >= 2) score = 'Win for player1';
-      else score = 'Win for player2';
-    }
-    else {
+    if (scoreDifference === 0) {
+      return this.scoresEqual(this.player1Score);
+    } else if (this.isAdvantageScore()) {
+      return this.getAdvantage(scoreDifference);
+    } else if (this.isWin(scoreDifference)) {
+      return this.win(scoreDifference);
+    } else {
       for (let i = 1; i < 3; i++) {
-        if (i === 1) tempScore = this.m_score1;
-        else { score += '-'; tempScore = this.m_score2; }
+        if (i === 1) tempScore = this.player1Score;
+        else {
+          score += '-';
+          tempScore = this.player2Score;
+        }
         switch (tempScore) {
           case 0:
             score += 'Love';
